@@ -1,0 +1,98 @@
+{
+  "header": {
+    "logout": "退出",
+    "language_en": "English",
+    "language_zh": "简体中文"
+  },
+  "modal": {
+    "ok_button": "确认",
+    "cancel_button": "取消"
+  },
+  "dashboard": {
+    "total_images": "图片总数",
+    "total_size_mb": "总大小（MB）",
+    "total_views": "总浏览量",
+    "bookmarked_images": "已收藏图片",
+    "bookmarked_tooltip": "已收藏",
+    "unbookmarked_tooltip": "未收藏"
+  },
+  "upload": {
+    "add_images_button": "添加图片",
+    "title": "上传图片",
+    "no_files_selected": "请至少选择一张图片。",
+    "dragger_help": "点击或拖拽图片到此处以上传多张图片",
+    "upload_success": "已上传 {{count}} 张图片",
+    "upload_failed": "上传失败，请重试。"
+  },
+  "imageBulkActionsBar": {
+    "download_button": "批量下载",
+    "bookmark_button": "批量收藏",
+    "unbookmark_button": "批量取消收藏",
+    "edit_button": "批量编辑",
+    "delete_button": "批量删除",
+
+    "download_failed": "下载选中图片失败",
+    "bookmark_success": "已收藏 {{count}} 张图片",
+    "bookmark_failed": "收藏选中图片失败",
+    "unbookmark_success": "已取消收藏 {{count}} 张图片",
+    "unbookmark_failed": "取消收藏选中图片失败",
+
+    "delete_modal_title": "删除选中图片",
+    "delete_modal_content": "确定要删除 {{count}} 张图片吗？此操作无法撤销。",
+    "delete_success": "已删除选中图片",
+    "delete_failed": "删除选中图片失败"
+  },
+  "imageMetaModal": {
+    "preview_alt": "预览",
+    "title_label": "标题",
+    "title_placeholder": "标题",
+    "description_label": "描述",
+    "description_placeholder": "描述",
+    "tags_label": "标签",
+    "tags_placeholder": "添加标签",
+    "ai_metadata_button": "AI 自动填写",
+    "ai_metadata_failed": "AI生成数据失败。请重试。"
+  },
+  "imageTable": {
+    "header_thumbnail": "缩略图",
+    "header_title": "标题",
+    "header_description": "描述",
+    "header_tags": "标签",
+    "header_size": "大小",
+    "header_resolution": "分辨率",
+    "header_views": "浏览量",
+    "header_bookmark": "收藏",
+    "header_created_at": "创建时间",
+    "header_actions": "操作",
+
+    "tooltip_view": "查看",
+    "tooltip_download": "下载",
+    "tooltip_edit": "编辑",
+    "tooltip_delete": "删除",
+
+    "fetch_failed": "获取图片失败",
+    "bookmark_update_failed": "更新收藏状态失败",
+    "delete_success": "图片已删除",
+    "delete_failed": "删除失败",
+    "download_failed": "下载失败",
+
+    "delete_single_title": "删除图片",
+    "delete_single_description": "确定要删除此图片吗？",
+    "delete_single_ok_button": "是",
+    "delete_single_cancel_button": "否",
+
+    "search_title_placeholder": "搜索标题",
+    "search_description_placeholder": "搜索描述",
+    "filter_tags_placeholder": "按标签筛选",
+    "search_button": "搜索",
+    "reset_button": "重置",
+
+    "bookmark_filter_bookmarked": "已收藏",
+    "bookmark_filter_unbookmarked": "未收藏",
+
+    "edit_modal_title_multiple": "编辑 {{count}} 张图片",
+    "edit_modal_title_single": "编辑图片信息",
+    "edit_save_success": "已更新 {{count}} 张图片",
+    "edit_save_failed": "更新图片信息失败"
+  }
+}
