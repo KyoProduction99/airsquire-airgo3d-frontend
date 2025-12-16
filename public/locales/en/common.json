@@ -65,7 +65,7 @@
     "header_created_at": "Created At",
     "header_actions": "Actions",
 
-    "tooltip_view": "View",
+    "tooltip_share": "Share",
     "tooltip_download": "Download",
     "tooltip_edit": "Edit",
     "tooltip_delete": "Delete",
@@ -93,6 +93,14 @@
     "edit_modal_title_multiple": "Edit {{count}} images",
     "edit_modal_title_single": "Edit Image Details",
     "edit_save_success": "Updated {{count}} image(s)",
-    "edit_save_failed": "Failed to update image details"
+    "edit_save_failed": "Failed to update image details",
+
+    "share_modal_title": "Set Share Password",
+    "share_modal_password_placeholder": "Enter share password",
+    "share_modal_copy_button": "Copy Link",
+    "share_modal_copy_success": "Share link copied to clipboard!",
+    "share_modal_save_copy_button": "Save and Copy Link",
+    "share_modal_save_copy_success": "Share link saved and copied to clipboard!",
+    "share_modal_save_copy_failed": "Failed to set share password."
   }
 }

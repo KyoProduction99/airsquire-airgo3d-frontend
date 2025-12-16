@@ -11,6 +11,7 @@ import {
   Table,
   Tag,
   Tooltip,
+  Modal,
 } from "antd";
 import type {
   ColumnType,
@@ -23,8 +24,8 @@ import {
   DeleteOutlined,
   DownloadOutlined,
   EditOutlined,
-  EyeOutlined,
   SearchOutlined,
+  ShareAltOutlined,
   StarFilled,
   StarOutlined,
 } from "@ant-design/icons";
@@ -37,6 +38,7 @@ import { buildFileUrl, triggerBrowserDownload } from "../utils/helpers";
 import ImageUpload from "./ImageUpload";
 import ImageBulkActionsBar from "./ImageBulkActionsBar";
 import ImageMetaModal, { ImageMeta, ImageMetaItem } from "./ImageMetaModal";
+import PanoramaViewer from "./PanoramaViewer";
 
 interface ImageTableProps {
   refreshKey: number;
@@ -119,6 +121,15 @@ const ImageTable: React.FC<ImageTableProps> = ({
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [selectedRows, setSelectedRows] = useState<ImageItem[]>([]);
   const hasSelection = selectedRowKeys.length > 0;
+
+  const [isPanoramaModalVisible, setIsPanoramaModalVisible] = useState(false);
+  const [panoramaImageUrl, setPanoramaImageUrl] = useState<string | null>(null);
+
+  const [isShareModalVisible, setIsShareModalVisible] = useState(false);
+  const [sharePassword, setSharePassword] = useState<string | null>(null);
+  const [currentShareImage, setCurrentShareImage] = useState<ImageItem | null>(
+    null
+  );
 
   const clearSelection = () => {
     setSelectedRowKeys([]);
@@ -467,10 +478,12 @@ const ImageTable: React.FC<ImageTableProps> = ({
       render: (_, record) => (
         <Image
           src={buildFileUrl(record.thumbnailUrl)}
-          width={120}
-          height={60}
-          style={{ objectFit: "cover" }}
+          width={160}
+          height={80}
+          style={{ objectFit: "cover", cursor: "pointer" }}
           alt={record.title || ""}
+          preview={false}
+          onClick={() => openPanoramaModal(buildFileUrl(record.originalUrl))}
         />
       ),
     },
@@ -574,16 +587,11 @@ const ImageTable: React.FC<ImageTableProps> = ({
             gap: 4,
           }}
         >
-          <Tooltip title={t("imageTable.tooltip_view")}>
+          <Tooltip title={t("imageTable.tooltip_share")}>
             <Button
-              icon={<EyeOutlined />}
-              onClick={() => {
-                const url = `${
-                  window.location.origin
-                }/viewer/${encodeURIComponent(record.hash)}`;
-                window.open(url, "_blank", "noopener");
-              }}
-            />
+              icon={<ShareAltOutlined />}
+              onClick={() => openShareModal(record)}
+            ></Button>
           </Tooltip>
 
           <Tooltip title={t("imageTable.tooltip_download")}>
@@ -630,6 +638,22 @@ const ImageTable: React.FC<ImageTableProps> = ({
       meta,
     };
   });
+
+  const openPanoramaModal = (imageUrl: string) => {
+    setPanoramaImageUrl(imageUrl);
+    setIsPanoramaModalVisible(true);
+  };
+
+  const closePanoramaModal = () => {
+    setIsPanoramaModalVisible(false);
+    setPanoramaImageUrl(null);
+  };
+
+  const openShareModal = (image: ImageItem) => {
+    setCurrentShareImage(image);
+    setSharePassword(image.sharePassword || "");
+    setIsShareModalVisible(true);
+  };
 
   return (
     <>
@@ -688,6 +712,74 @@ const ImageTable: React.FC<ImageTableProps> = ({
           }))
         }
       />
+
+      <Modal
+        open={isPanoramaModalVisible}
+        footer={null}
+        onCancel={closePanoramaModal}
+        width="80vw"
+        height="80vh"
+        bodyStyle={{ height: "80vh" }}
+      >
+        {panoramaImageUrl && (
+          <PanoramaViewer
+            imageUrl={panoramaImageUrl}
+            onError={(msg) => message.error(msg)}
+          />
+        )}
+      </Modal>
+
+      <Modal
+        open={isShareModalVisible}
+        footer={null}
+        title={t("imageTable.share_modal_title")}
+        onCancel={() => setIsShareModalVisible(false)}
+      >
+        <Input.Password
+          placeholder={t("imageTable.share_modal_password_placeholder")}
+          value={sharePassword || ""}
+          style={{ marginBottom: 16 }}
+          onChange={(e) => setSharePassword(e.target.value)}
+        />
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+          <Button onClick={() => setIsShareModalVisible(false)}>
+            {t("modal.cancel_button")}
+          </Button>
+          <Button
+            onClick={async () => {
+              if (!currentShareImage) return;
+              const shareLink = `${window.location.origin}/viewer/${currentShareImage.hash}`;
+              await navigator.clipboard.writeText(shareLink);
+              message.success(t("imageTable.share_modal_copy_success"));
+              setIsShareModalVisible(false);
+            }}
+          >
+            {t("imageTable.share_modal_copy_button")}
+          </Button>
+          <Button
+            type="primary"
+            onClick={async () => {
+              if (!currentShareImage) return;
+
+              try {
+                await api.patch(`/images/${currentShareImage._id}/details`, {
+                  sharePassword,
+                });
+
+                const shareLink = `${window.location.origin}/viewer/${currentShareImage.hash}`;
+                await navigator.clipboard.writeText(shareLink);
+                message.success(t("imageTable.share_modal_save_copy_success"));
+                setIsShareModalVisible(false);
+              } catch (err) {
+                console.error(err);
+                message.error(t("imageTable.share_modal_save_copy_failed"));
+              }
+            }}
+          >
+            {t("imageTable.share_modal_save_copy_button")}
+          </Button>
+        </div>
+      </Modal>
     </>
   );
 };

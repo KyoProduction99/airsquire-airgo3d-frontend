@@ -21,6 +21,7 @@ export interface ImageItem {
   title?: string;
   description?: string;
   tags?: string[];
+  sharePassword?: string;
 
   hash: string;
   viewCount: number;

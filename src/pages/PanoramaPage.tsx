@@ -1,24 +1,37 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
+import { Card, Button, Form, Input, Typography } from "antd";
 
-import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import api from "../api";
+import PanoramaViewer from "../components/PanoramaViewer";
 
 interface HashResponse {
   imageUrl: string;
 }
 
+const { Title } = Typography;
+
 const PanoramaPage: React.FC = () => {
   const { hash } = useParams<{ hash: string }>();
-  const containerRef = useRef<HTMLDivElement | null>(null);
   const hasFetchedRef = useRef(false);
 
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [sharePassword, setSharePassword] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isPasswordRequired, setIsPasswordRequired] = useState(true);
+
+  const handlePasswordSubmit = () => {
+    if (!sharePassword) {
+      setErrorMessage("Password is required");
+      return;
+    }
+    setIsPasswordRequired(false);
+  };
 
   useEffect(() => {
+    if (isPasswordRequired) return;
+
     const fetchImage = async () => {
       if (!hash) {
         setErrorMessage("No hash provided");
@@ -30,7 +43,9 @@ const PanoramaPage: React.FC = () => {
       hasFetchedRef.current = true;
 
       try {
-        const res = await api.get<HashResponse>(`/images/hash/${hash}`);
+        const res = await api.post<HashResponse>(`/images/hash/${hash}`, {
+          sharePassword,
+        });
         setImageUrl(res.data.imageUrl);
       } catch (err: any) {
         console.error(err);
@@ -43,110 +58,49 @@ const PanoramaPage: React.FC = () => {
     };
 
     fetchImage();
-  }, [hash]);
+  }, [hash, sharePassword, isPasswordRequired]);
 
-  useEffect(() => {
-    if (!imageUrl || !containerRef.current) return;
+  if (isPasswordRequired) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 16,
+        }}
+      >
+        <Card
+          style={{
+            width: 420,
+            boxShadow:
+              "0 10px 30px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05)",
+            borderRadius: 12,
+          }}
+        >
+          <Title
+            level={3}
+            style={{ margin: "0 0 16px 0", textAlign: "center" }}
+          >
+            AirGo3D Image
+          </Title>
 
-    const container = containerRef.current;
-
-    container.style.overflow = "hidden";
-    document.body.style.overflow = "hidden";
-
-    const width = container.clientWidth;
-    const height = container.clientHeight;
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(width, height);
-    container.appendChild(renderer.domElement);
-
-    const scene = new THREE.Scene();
-
-    const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 2000);
-    camera.position.set(0, 0, 0.1);
-
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.enableZoom = true;
-    controls.zoomSpeed = 0.5;
-    controls.rotateSpeed = -0.3;
-    controls.minDistance = 0.1;
-    controls.maxDistance = 1000;
-
-    container.style.cursor = "grab";
-    const handlePointerDown = () => (container.style.cursor = "grabbing");
-    const handlePointerUp = () => (container.style.cursor = "grab");
-    container.addEventListener("pointerdown", handlePointerDown);
-    container.addEventListener("pointerup", handlePointerUp);
-    container.addEventListener("pointerleave", handlePointerUp);
-
-    const geometry = new THREE.SphereGeometry(500, 60, 40);
-    geometry.scale(-1, 1, 1);
-
-    const loader = new THREE.TextureLoader();
-    let mesh: THREE.Mesh | null = null;
-
-    loader.load(
-      imageUrl,
-      (texture) => {
-        const material = new THREE.MeshBasicMaterial({ map: texture });
-        mesh = new THREE.Mesh(geometry, material);
-        scene.add(mesh);
-      },
-      undefined,
-      (err) => {
-        console.error("Failed to load texture", err);
-        setErrorMessage("Failed to load image texture");
-      }
+          <Form layout="vertical" onFinish={handlePasswordSubmit}>
+            <Input.Password
+              placeholder="Enter password"
+              value={sharePassword || ""}
+              onChange={(e) => setSharePassword(e.target.value)}
+              style={{ marginBottom: 16 }}
+            />
+            <Button type="primary" htmlType="submit" block loading={isLoading}>
+              Submit
+            </Button>
+          </Form>
+        </Card>
+      </div>
     );
-
-    const handleWheel = (event: WheelEvent) => {
-      const fov = camera.fov + event.deltaY * 0.05;
-      camera.fov = THREE.MathUtils.clamp(fov, 10, 75);
-      camera.updateProjectionMatrix();
-    };
-    container.addEventListener("wheel", handleWheel);
-
-    const handleResize = () => {
-      const width = container.clientWidth;
-      const height = container.clientHeight;
-      renderer.setSize(width, height);
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-    };
-    window.addEventListener("resize", handleResize);
-
-    let animationId: number;
-    const animate = () => {
-      animationId = requestAnimationFrame(animate);
-      controls.update();
-      renderer.render(scene, camera);
-    };
-    animate();
-
-    return () => {
-      cancelAnimationFrame(animationId);
-      window.removeEventListener("resize", handleResize);
-      container.removeEventListener("wheel", handleWheel);
-      container.removeEventListener("pointerdown", handlePointerDown);
-      container.removeEventListener("pointerup", handlePointerUp);
-      container.removeEventListener("pointerleave", handlePointerUp);
-      controls.dispose();
-      renderer.dispose();
-      if (mesh) {
-        mesh.geometry.dispose();
-        if (Array.isArray(mesh.material)) {
-          mesh.material.forEach((m) => m.dispose());
-        } else {
-          mesh.material.dispose();
-        }
-      }
-      if (renderer.domElement.parentNode === container) {
-        container.removeChild(renderer.domElement);
-      }
-      document.body.style.overflow = "auto";
-    };
-  }, [imageUrl]);
+  }
 
   if (isLoading || errorMessage) {
     return (
@@ -169,10 +123,9 @@ const PanoramaPage: React.FC = () => {
   }
 
   return (
-    <div
-      ref={containerRef}
-      style={{ width: "100vw", height: "100vh", background: "#000" }}
-    />
+    <div style={{ width: "100vw", height: "100vh", background: "#000" }}>
+      <PanoramaViewer imageUrl={imageUrl!} onError={setErrorMessage} />
+    </div>
   );
 };
 

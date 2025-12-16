@@ -65,7 +65,7 @@
     "header_created_at": "创建时间",
     "header_actions": "操作",
 
-    "tooltip_view": "查看",
+    "tooltip_share": "分享",
     "tooltip_download": "下载",
     "tooltip_edit": "编辑",
     "tooltip_delete": "删除",
@@ -93,6 +93,14 @@
     "edit_modal_title_multiple": "编辑 {{count}} 张图片",
     "edit_modal_title_single": "编辑图片信息",
     "edit_save_success": "已更新 {{count}} 张图片",
-    "edit_save_failed": "更新图片信息失败"
+    "edit_save_failed": "更新图片信息失败",
+
+    "share_modal_title": "设置分享密码",
+    "share_modal_password_placeholder": "请输入分享密码",
+    "share_modal_copy_button": "复制链接",
+    "share_modal_copy_success": "分享链接已复制到剪贴板！",
+    "share_modal_save_copy_button": "保存并复制链接",
+    "share_modal_save_copy_success": "分享链接已保存并复制到剪贴板！",
+    "share_modal_save_copy_failed": "设置分享密码失败。"
   }
 }
