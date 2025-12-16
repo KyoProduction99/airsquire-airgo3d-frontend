@@ -48,7 +48,7 @@ npm run preview
 - List with pagination, sorting, filtering by tags and bookmark status
 - Search by title/description
 - Bookmark/unbookmark images and filter by status
-- View analytics: total images, size in bytes, bookmarked vs unbookmarked, total views
+- View analytics: total images, total size, total views, bookmarked vs unbookmarked pie chart
 - AI-assisted metadata suggestions (if backend configured with OpenAI key)
 - Panorama viewer powered by Three.js
 - Localization with i18next
